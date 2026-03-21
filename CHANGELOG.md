@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.3.11](https://github.com/jdx/mise/compare/v2026.3.10..v2026.3.11) - 2026-03-21
+
+### 🐛 Bug Fixes
+
+- **(docs)** add dark mode support to favicon by @jdx in [#8678](https://github.com/jdx/mise/pull/8678)
+
 ## [2026.3.10](https://github.com/jdx/mise/compare/v2026.3.9..v2026.3.10) - 2026-03-21
 
 ### 🐛 Bug Fixes
