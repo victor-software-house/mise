@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# A remote git task fetched from inside a git hook must ignore the hook's
+# repository context. git sets GIT_INDEX_FILE for pre-commit hooks, and hook
+# runners may set GIT_WORK_TREE; the clone must not write either.
+
+git init -q tasksrc
+mkdir tasksrc/tasks
+cat <<'TASK' >tasksrc/tasks/hello
+#!/usr/bin/env bash
+echo "hello from remote"
+TASK
+chmod +x tasksrc/tasks/hello
+git -C tasksrc add tasks/hello
+git -C tasksrc -c user.email=e2e@example.com -c user.name=e2e commit -q -m tasks
+git -C tasksrc branch -M main
+git config --global url."file://$PWD/tasksrc".insteadOf "https://example.test/org/tasks.git"
+
+git init -q project
+cd project
+cat <<'TOML' >mise.toml
+[tasks.hello]
+file = "git::https://example.test/org/tasks.git//tasks/hello?ref=main"
+TOML
+git add mise.toml
+git -c user.email=e2e@example.com -c user.name=e2e commit -q -m init
+
+cat <<'HOOK' >.git/hooks/pre-commit
+#!/usr/bin/env bash
+mise run hello
+HOOK
+chmod +x .git/hooks/pre-commit
+echo a >a.txt
+git add a.txt
+assert_contains "git -c user.email=e2e@example.com -c user.name=e2e commit -q -m a 2>&1" "hello from remote"
+assert "git ls-files" "a.txt
+mise.toml"
+assert "git ls-tree -r --name-only HEAD" "a.txt
+mise.toml"
+rm .git/hooks/pre-commit
+
+mise cache clear
+assert_contains "GIT_WORK_TREE=$PWD mise run hello" "hello from remote"
+assert "git status --porcelain" ""

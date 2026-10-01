@@ -207,6 +207,7 @@ impl Git {
             .filter(|b| !looks_like_sha(b) && revision.is_none());
         if (Settings::get().libgit2 || Settings::get().gix)
             && std::env::var_os("MISE_GITHUB_RELAY_SOCKET").is_none()
+            && !inherits_git_context_env()
         {
             debug!("cloning {} to {} with gix", url, self.dir.display());
             let mut prepare_clone = gix::prepare_clone(url, &self.dir)?
@@ -564,6 +565,16 @@ pub fn sanitize_git_command(cmd: &mut std::process::Command) {
     for env in GIT_CONTEXT_ENV {
         cmd.env_remove(env);
     }
+}
+
+/// gix applies inherited repository context such as `GIT_INDEX_FILE` and
+/// `GIT_WORK_TREE` to the repository it clones, and has no per-call way to drop
+/// it. Inside a git hook that would write the caller's index and work tree, so
+/// clone with the git CLI, which [`sanitize_git_cmd_runner`] cleans, instead.
+fn inherits_git_context_env() -> bool {
+    GIT_CONTEXT_ENV
+        .iter()
+        .any(|env| std::env::var_os(env).is_some())
 }
 
 const GIT_CONTEXT_ENV: &[&str] = &[
