@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# mise ends a relayed task line with an ANSI reset only when the line carries
+# an escape sequence, so plain output stays parseable when color is forced.
+# The redaction routes interleave output through mise instead of handing the
+# task the terminal.
+cat <<'EOF' >mise.toml
+redactions = ["SECRET"]
+
+[env]
+SECRET = "line-reset-secret"
+
+[tasks.json]
+run = '''printf '{"a":1}\n' '''
+
+[tasks.json_stderr]
+run = '''printf '{"a":1}\n' >&2'''
+
+[tasks.color]
+run = '''printf '\033[31mred\n' '''
+EOF
+
+assert "CLICOLOR_FORCE=1 mise run -q json | od -An -tx1 | tr -d ' \n'" "7b2261223a317d0a"
+assert "CLICOLOR_FORCE=1 mise run -q json | jq -c ." '{"a":1}'
+assert "CLICOLOR_FORCE=1 mise run -q color | od -An -tx1 | tr -d ' \n'" "1b5b33316d7265641b5b306d0a"
+
+for output in prefix keep-order; do
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output json | tail -c 8 | od -An -tx1 | tr -d ' \n'" "7b2261223a317d0a"
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output json_stderr 2>&1 >/dev/null | tail -c 8 | od -An -tx1 | tr -d ' \n'" "7b2261223a317d0a"
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output color | tail -c 5 | od -An -tx1 | tr -d ' \n'" "1b5b306d0a"
+done

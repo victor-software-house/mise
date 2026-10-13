@@ -1280,21 +1280,15 @@ impl DepsEngine {
                     if quiet {
                         return;
                     }
-                    if console::colors_enabled() {
-                        prefix_println!(stdout_prefix, "{line}\x1b[0m");
-                    } else {
-                        prefix_println!(stdout_prefix, "{line}");
-                    }
+                    let reset = style::line_reset(&line, console::colors_enabled());
+                    prefix_println!(stdout_prefix, "{line}{reset}");
                 })
                 .with_on_stderr(move |line| {
                     if quiet {
                         return;
                     }
-                    if console::colors_enabled_stderr() {
-                        prefix_eprintln!(stderr_prefix, "{line}\x1b[0m");
-                    } else {
-                        prefix_eprintln!(stderr_prefix, "{line}");
-                    }
+                    let reset = style::line_reset(&line, console::colors_enabled_stderr());
+                    prefix_eprintln!(stderr_prefix, "{line}{reset}");
                 });
         }
 

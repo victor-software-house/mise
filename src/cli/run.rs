@@ -1553,11 +1553,8 @@ impl Run {
                             let (time, lines) = out;
                             if time.elapsed().unwrap().as_secs() >= 1 {
                                 for line in lines {
-                                    if console::colors_enabled() {
-                                        prefix_println!(prefix, "{line}\x1b[0m");
-                                    } else {
-                                        prefix_println!(prefix, "{line}");
-                                    }
+                                    let reset = style::line_reset(&line, console::colors_enabled());
+                                    prefix_println!(prefix, "{line}{reset}");
                                 }
                                 outputs.shift_remove(&prefix);
                             }

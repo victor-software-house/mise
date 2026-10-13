@@ -2226,12 +2226,9 @@ impl<'a> CmdLineRunner<'a> {
                 pr.set_process_output(line)
             }
         } else {
+            let reset = crate::style::line_reset(&line, console::colors_enabled());
             let mut stdout = std::io::stdout().lock();
-            let _ = if console::colors_enabled() {
-                writeln!(stdout, "{line}\x1b[0m")
-            } else {
-                writeln!(stdout, "{line}")
-            };
+            let _ = writeln!(stdout, "{line}{reset}");
         }
     }
 
@@ -2268,12 +2265,9 @@ impl<'a> CmdLineRunner<'a> {
                 }
             }
             None => {
+                let reset = crate::style::line_reset(&line, console::colors_enabled_stderr());
                 let mut stderr = std::io::stderr().lock();
-                let _ = if console::colors_enabled_stderr() {
-                    writeln!(stderr, "{line}\x1b[0m")
-                } else {
-                    writeln!(stderr, "{line}")
-                };
+                let _ = writeln!(stderr, "{line}{reset}");
             }
         }
     }

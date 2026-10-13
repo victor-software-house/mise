@@ -382,19 +382,13 @@ impl KeepOrderState {
 }
 
 fn print_stdout(prefix: &str, line: &str) {
-    if console::colors_enabled() {
-        prefix_println!(prefix, "{line}\x1b[0m");
-    } else {
-        prefix_println!(prefix, "{line}");
-    }
+    let reset = style::line_reset(line, console::colors_enabled());
+    prefix_println!(prefix, "{line}{reset}");
 }
 
 fn print_stderr(prefix: &str, line: &str) {
-    if console::colors_enabled_stderr() {
-        prefix_eprintln!(prefix, "{line}\x1b[0m");
-    } else {
-        prefix_eprintln!(prefix, "{line}");
-    }
+    let reset = style::line_reset(line, console::colors_enabled_stderr());
+    prefix_eprintln!(prefix, "{line}{reset}");
 }
 
 /// Configuration for OutputHandler
@@ -644,18 +638,12 @@ impl OutputHandler {
                 }
                 (TaskOutput::Timed, TaskCacheOutput::Stdout(_)) => {}
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stdout(line)) => {
-                    if console::colors_enabled() {
-                        println!("{line}\x1b[0m");
-                    } else {
-                        println!("{line}");
-                    }
+                    let reset = style::line_reset(line, console::colors_enabled());
+                    println!("{line}{reset}");
                 }
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stderr(line)) => {
-                    if console::colors_enabled_stderr() {
-                        eprintln!("{line}\x1b[0m");
-                    } else {
-                        eprintln!("{line}");
-                    }
+                    let reset = style::line_reset(line, console::colors_enabled_stderr());
+                    eprintln!("{line}{reset}");
                 }
             }
         }
