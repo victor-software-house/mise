@@ -382,19 +382,11 @@ impl KeepOrderState {
 }
 
 fn print_stdout(prefix: &str, line: &str) {
-    if console::colors_enabled() {
-        prefix_println!(prefix, "{line}\x1b[0m");
-    } else {
-        prefix_println!(prefix, "{line}");
-    }
+    prefix_println!(prefix, "{line}");
 }
 
 fn print_stderr(prefix: &str, line: &str) {
-    if console::colors_enabled_stderr() {
-        prefix_eprintln!(prefix, "{line}\x1b[0m");
-    } else {
-        prefix_eprintln!(prefix, "{line}");
-    }
+    prefix_eprintln!(prefix, "{line}");
 }
 
 /// Configuration for OutputHandler
@@ -644,18 +636,10 @@ impl OutputHandler {
                 }
                 (TaskOutput::Timed, TaskCacheOutput::Stdout(_)) => {}
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stdout(line)) => {
-                    if console::colors_enabled() {
-                        println!("{line}\x1b[0m");
-                    } else {
-                        println!("{line}");
-                    }
+                    println!("{line}");
                 }
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stderr(line)) => {
-                    if console::colors_enabled_stderr() {
-                        eprintln!("{line}\x1b[0m");
-                    } else {
-                        eprintln!("{line}");
-                    }
+                    eprintln!("{line}");
                 }
             }
         }

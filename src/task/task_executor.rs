@@ -2067,11 +2067,7 @@ impl TaskExecutor {
             TaskOutput::Prefix => {
                 if !task.silent.suppresses_stdout() {
                     cmd = cmd.with_on_stdout(|line| {
-                        if console::colors_enabled() {
-                            prefix_println!(prefix, "{line}\x1b[0m");
-                        } else {
-                            prefix_println!(prefix, "{line}");
-                        }
+                        prefix_println!(prefix, "{line}");
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stdout(|_| {});
@@ -2080,11 +2076,7 @@ impl TaskExecutor {
                 }
                 if !task.silent.suppresses_stderr() {
                     cmd = cmd.with_on_stderr(|line| {
-                        if console::colors_enabled() {
-                            self.eprint(task, prefix, &format!("{line}\x1b[0m"));
-                        } else {
-                            self.eprint(task, prefix, &line);
-                        }
+                        self.eprint(task, prefix, &line);
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stderr(|_| {});
@@ -2162,11 +2154,7 @@ impl TaskExecutor {
                 }
                 if !task.silent.suppresses_stderr() {
                     cmd = cmd.with_on_stderr(|line| {
-                        if console::colors_enabled() {
-                            self.eprint(task, prefix, &format!("{line}\x1b[0m"));
-                        } else {
-                            self.eprint(task, prefix, &line);
-                        }
+                        self.eprint(task, prefix, &line);
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stderr(|_| {});
