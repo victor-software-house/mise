@@ -1280,15 +1280,13 @@ impl DepsEngine {
                     if quiet {
                         return;
                     }
-                    let reset = style::line_reset(&line, console::colors_enabled());
-                    prefix_println!(stdout_prefix, "{line}{reset}");
+                    prefix_println!(stdout_prefix, "{line}");
                 })
                 .with_on_stderr(move |line| {
                     if quiet {
                         return;
                     }
-                    let reset = style::line_reset(&line, console::colors_enabled_stderr());
-                    prefix_eprintln!(stderr_prefix, "{line}{reset}");
+                    prefix_eprintln!(stderr_prefix, "{line}");
                 });
         }
 

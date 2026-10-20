@@ -2067,8 +2067,7 @@ impl TaskExecutor {
             TaskOutput::Prefix => {
                 if !task.silent.suppresses_stdout() {
                     cmd = cmd.with_on_stdout(|line| {
-                        let reset = style::line_reset(&line, console::colors_enabled());
-                        prefix_println!(prefix, "{line}{reset}");
+                        prefix_println!(prefix, "{line}");
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stdout(|_| {});
@@ -2077,8 +2076,7 @@ impl TaskExecutor {
                 }
                 if !task.silent.suppresses_stderr() {
                     cmd = cmd.with_on_stderr(|line| {
-                        let reset = style::line_reset(&line, console::colors_enabled());
-                        self.eprint(task, prefix, &format!("{line}{reset}"));
+                        self.eprint(task, prefix, &line);
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stderr(|_| {});
@@ -2156,8 +2154,7 @@ impl TaskExecutor {
                 }
                 if !task.silent.suppresses_stderr() {
                     cmd = cmd.with_on_stderr(|line| {
-                        let reset = style::line_reset(&line, console::colors_enabled());
-                        self.eprint(task, prefix, &format!("{line}{reset}"));
+                        self.eprint(task, prefix, &line);
                     });
                 } else if output_capture.is_some() {
                     cmd = cmd.with_on_stderr(|_| {});

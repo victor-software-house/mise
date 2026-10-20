@@ -127,31 +127,9 @@ pub fn prefix_ansi(hash_key: impl AsRef<str>) -> String {
         .to_string()
 }
 
-/// Return the reset to print after a line relayed from a child process.
-///
-/// A line that sets a style without clearing it would carry that style into
-/// the next line and its prefix, so a line with an escape sequence ends with
-/// a reset. A plain line gets none, so output such as JSON reaches a pipe
-/// unchanged even when color is forced.
-pub fn line_reset(line: &str, colors: bool) -> &'static str {
-    if colors && line.contains("\x1b[") {
-        "\x1b[0m"
-    } else {
-        ""
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn line_reset_follows_only_styled_lines() {
-        assert_eq!(line_reset(r#"{"a":1}"#, true), "");
-        assert_eq!(line_reset("\x1b[31mred", true), "\x1b[0m");
-        assert_eq!(line_reset("\x1b[1mbold\x1b[0m", true), "\x1b[0m");
-        assert_eq!(line_reset("\x1b[31mred", false), "");
-    }
 
     #[test]
     fn prefix_ansi_matches_rendered_prefix_style() {

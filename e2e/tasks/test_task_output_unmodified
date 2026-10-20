@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# mise relays task output lines as the task wrote them, with no ANSI reset
+# appended, so plain output stays byte-identical and parseable when color is
+# forced. A task prefix ends with its own reset, so a task's styles still stop
+# before the next prefix. The redaction routes interleave output through mise
+# instead of handing the task the terminal.
+cat <<'EOF' >mise.toml
+redactions = ["SECRET"]
+
+[env]
+SECRET = "line-reset-secret"
+
+[tasks.json]
+run = '''printf '{"a":1}\n' '''
+
+[tasks.json_stderr]
+run = '''printf '{"a":1}\n' >&2'''
+
+[tasks.json_slow]
+run = '''printf '{"a":1}\n'; sleep 2'''
+
+[tasks.color]
+run = '''printf '\033[31mred\n' '''
+EOF
+
+hex="od -An -tx1 | tr -d ' \n'"
+json_hex="7b2261223a317d0a"
+color_hex="1b5b33316d7265640a"
+
+assert "CLICOLOR_FORCE=1 mise run -q json | $hex" "$json_hex"
+assert "CLICOLOR_FORCE=1 mise run -q json | jq -c ." '{"a":1}'
+assert "CLICOLOR_FORCE=1 mise run -q json_stderr 2>&1 >/dev/null | $hex" "$json_hex"
+assert "CLICOLOR_FORCE=1 mise run -q color | $hex" "$color_hex"
+
+# Prefixed lines are "<prefix> <line>"; the prefix holds no space.
+for output in prefix keep-order; do
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output json | cut -d' ' -f2- | $hex" "$json_hex"
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output json | cut -d' ' -f2- | jq -c ." '{"a":1}'
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output json_stderr 2>&1 >/dev/null | cut -d' ' -f2- | $hex" "$json_hex"
+  assert "CLICOLOR_FORCE=1 mise run -q -o $output color | cut -d' ' -f2- | $hex" "$color_hex"
+done
+
+# Timed output prints a stdout line once it has been the latest for a second.
+assert "CLICOLOR_FORCE=1 mise run -q -o timed json_slow | cut -d' ' -f2- | $hex" "$json_hex"
+assert "CLICOLOR_FORCE=1 mise run -q -o timed json_stderr 2>&1 >/dev/null | cut -d' ' -f2- | $hex" "$json_hex"

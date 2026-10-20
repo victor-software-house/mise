@@ -382,13 +382,11 @@ impl KeepOrderState {
 }
 
 fn print_stdout(prefix: &str, line: &str) {
-    let reset = style::line_reset(line, console::colors_enabled());
-    prefix_println!(prefix, "{line}{reset}");
+    prefix_println!(prefix, "{line}");
 }
 
 fn print_stderr(prefix: &str, line: &str) {
-    let reset = style::line_reset(line, console::colors_enabled_stderr());
-    prefix_eprintln!(prefix, "{line}{reset}");
+    prefix_eprintln!(prefix, "{line}");
 }
 
 /// Configuration for OutputHandler
@@ -638,12 +636,10 @@ impl OutputHandler {
                 }
                 (TaskOutput::Timed, TaskCacheOutput::Stdout(_)) => {}
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stdout(line)) => {
-                    let reset = style::line_reset(line, console::colors_enabled());
-                    println!("{line}{reset}");
+                    println!("{line}");
                 }
                 (TaskOutput::Interleave | TaskOutput::Quiet, TaskCacheOutput::Stderr(line)) => {
-                    let reset = style::line_reset(line, console::colors_enabled_stderr());
-                    eprintln!("{line}{reset}");
+                    eprintln!("{line}");
                 }
             }
         }
